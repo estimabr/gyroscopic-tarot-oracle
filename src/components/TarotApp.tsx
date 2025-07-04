@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import TarotCard from './TarotCard';
 import { toast } from 'sonner';
 
@@ -42,9 +44,10 @@ const TarotApp = () => {
   const [cards, setCards] = useState<TarotCardData[]>([]);
   const [isShuffling, setIsShuffling] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
-  const [gamePhase, setGamePhase] = useState<'shuffle' | 'select' | 'reading'>('shuffle');
+  const [gamePhase, setGamePhase] = useState<'question' | 'shuffle' | 'select' | 'reading'>('question');
   const [reading, setReading] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [question, setQuestion] = useState<string>('');
 
   useEffect(() => {
     initializeCards();
@@ -68,9 +71,17 @@ const TarotApp = () => {
     rotation: Math.random() * 360 - 180
   });
 
+  const handleQuestionSubmit = () => {
+    if (question.trim()) {
+      setGamePhase('shuffle');
+      toast.success('Pergunta registrada! Agora embaralhe as cartas.');
+    } else {
+      toast.error('Por favor, digite sua pergunta antes de continuar.');
+    }
+  };
+
   const shuffleCards = () => {
     setIsShuffling(true);
-    setGamePhase('shuffle');
     
     // Simula movimento do giroscópio
     const shuffleInterval = setInterval(() => {
@@ -119,7 +130,7 @@ const TarotApp = () => {
     setTimeout(() => {
       const selectedCardData = selectedCardIds.map(id => cards[id]);
       const mockReading = `
-        🔮 Sua Leitura de Tarot 🔮
+        🔮 Resposta para sua pergunta: "${question}" 🔮
         
         Passado - ${selectedCardData[0]?.name}: ${selectedCardData[0]?.meaning}
         
@@ -127,7 +138,7 @@ const TarotApp = () => {
         
         Futuro - ${selectedCardData[2]?.name}: ${selectedCardData[2]?.meaning}
         
-        As cartas revelam um momento de transformação em sua vida. O passado trouxe lições importantes, o presente oferece oportunidades de crescimento, e o futuro promete realizações significativas. Confie em sua intuição e mantenha-se aberto às mudanças que estão por vir.
+        Com base em sua pergunta "${question}", as cartas revelam um caminho de transformação. O passado mostra as bases que você construiu, o presente indica as oportunidades atuais, e o futuro promete a realização de seus objetivos. Mantenha-se focado em seus propósitos e confie na sua intuição para tomar as decisões certas.
       `;
       
       setReading(mockReading);
@@ -137,9 +148,10 @@ const TarotApp = () => {
 
   const resetGame = () => {
     setSelectedCards([]);
-    setGamePhase('shuffle');
+    setGamePhase('question');
     setReading('');
     setIsLoading(false);
+    setQuestion('');
     initializeCards();
   };
 
@@ -151,9 +163,37 @@ const TarotApp = () => {
             ✦ Tarot Místico ✦
           </h1>
           <p className="text-muted-foreground">
-            Embaralhe as cartas e descubra o que o universo tem a revelar
+            Faça sua pergunta, embaralhe as cartas e descubra o que o universo tem a revelar
           </p>
         </div>
+
+        {gamePhase === 'question' && (
+          <Card className="bg-card/80 backdrop-blur-sm border-gold-400 mb-8 max-w-md mx-auto">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="question" className="text-gold-400 font-semibold">
+                    Qual é sua pergunta para o Tarot?
+                  </Label>
+                  <Input
+                    id="question"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ex: O que devo saber sobre meu futuro profissional?"
+                    className="mt-2 bg-background/50 border-gold-400/30 text-foreground"
+                    onKeyPress={(e) => e.key === 'Enter' && handleQuestionSubmit()}
+                  />
+                </div>
+                <Button 
+                  onClick={handleQuestionSubmit}
+                  className="w-full mystical-gradient text-white font-bold py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  ✨ Continuar para o Embaralhamento
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {gamePhase === 'shuffle' && (
           <div className="text-center mb-8">
@@ -176,20 +216,22 @@ const TarotApp = () => {
           </div>
         )}
 
-        <div className="relative w-full h-96 border-2 border-dashed border-mystic-600 rounded-lg mb-8 overflow-hidden">
-          {cards.map(card => (
-            <TarotCard
-              key={card.id}
-              id={card.id}
-              name={card.name}
-              isFlipped={card.isFlipped}
-              isSelected={card.isSelected}
-              isShuffling={isShuffling}
-              position={card.position}
-              onSelect={selectCard}
-            />
-          ))}
-        </div>
+        {(gamePhase === 'shuffle' || gamePhase === 'select') && (
+          <div className="relative w-full h-96 border-2 border-dashed border-mystic-600 rounded-lg mb-8 overflow-hidden">
+            {cards.map(card => (
+              <TarotCard
+                key={card.id}
+                id={card.id}
+                name={card.name}
+                isFlipped={card.isFlipped}
+                isSelected={card.isSelected}
+                isShuffling={isShuffling}
+                position={card.position}
+                onSelect={selectCard}
+              />
+            ))}
+          </div>
+        )}
 
         {gamePhase === 'reading' && (
           <Card className="bg-card/80 backdrop-blur-sm border-gold-400">
@@ -210,7 +252,7 @@ const TarotApp = () => {
                       variant="outline"
                       className="border-gold-400 text-gold-400 hover:bg-gold-400 hover:text-black"
                     >
-                      Nova Leitura
+                      Nova Consulta
                     </Button>
                   </div>
                 </div>
