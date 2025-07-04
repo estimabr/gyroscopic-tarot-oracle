@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import TarotCard from './TarotCard';
 import { toast } from 'sonner';
-import { Shuffle, Sparkles, Moon, Sun } from 'lucide-react';
+import { Shuffle, Sparkles, Moon, Sun, Heart, Star, Zap } from 'lucide-react';
 
 interface TarotCardData {
   id: number;
@@ -237,7 +236,7 @@ O universo sussurra através dessas cartas que sua pergunta "${question}" encont
         ))}
       </div>
 
-      <div className="w-full max-w-6xl relative z-10">
+      <div className="w-full max-w-6xl relative z-10 flex-1 flex flex-col">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8 animate-slide-up">
           <div className="flex justify-between items-center mb-4">
@@ -324,19 +323,40 @@ O universo sussurra através dessas cartas que sua pergunta "${question}" encont
         {/* Selection Phase */}
         {gamePhase === 'select' && (
           <div className="text-center mb-6 sm:mb-8 animate-slide-up">
-            <p className="text-base sm:text-lg text-primary font-semibold mb-2">
-              ✨ Selecione 3 cartas tocando nelas ({selectedCards.length}/3)
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Você pode arrastar as cartas para organizá-las antes de selecionar
-            </p>
-            
-            <div className="mt-4">
+            <div className="bg-card/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-lg max-w-md mx-auto">
+              <div className="flex items-center justify-center mb-3">
+                <Star className="h-5 w-5 text-accent mr-2 sparkle-animation" />
+                <h3 className="text-lg sm:text-xl font-bold text-primary">Selecione 3 cartas tocando nelas</h3>
+                <Star className="h-5 w-5 text-accent ml-2 sparkle-animation" />
+              </div>
+              
+              <div className="flex justify-center items-center space-x-2 mb-3">
+                <div className="flex space-x-1">
+                  {[0, 1, 2].map(index => (
+                    <div 
+                      key={index}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                        selectedCards.length > index 
+                          ? 'bg-accent animate-pulse-gentle' 
+                          : 'bg-muted border-2 border-primary/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-primary font-semibold text-lg">
+                  ({selectedCards.length}/3)
+                </span>
+              </div>
+              
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                Você pode arrastar as cartas para organizá-las antes de selecionar
+              </p>
+              
               <Button 
                 onClick={shuffleCards}
                 variant="outline"
                 size="sm"
-                className="border-primary/50 text-primary hover:bg-primary/10"
+                className="border-primary/50 text-primary hover:bg-primary/10 smooth-scale"
               >
                 <Shuffle className="mr-2 h-4 w-4" />
                 Embaralhar Novamente
@@ -345,62 +365,143 @@ O universo sussurra através dessas cartas que sua pergunta "${question}" encont
           </div>
         )}
 
-        {/* Cards Container */}
+        {/* Cards Container - Centralized */}
         {(gamePhase === 'shuffle' || gamePhase === 'select') && (
-          <div className="relative w-full h-64 sm:h-96 border-2 border-dashed border-primary/30 rounded-xl mb-6 sm:mb-8 overflow-hidden bg-card/20 backdrop-blur-sm shadow-inner">
-            {cards.map(card => (
-              <TarotCard
-                key={card.id}
-                id={card.id}
-                name={card.name}
-                isFlipped={card.isFlipped}
-                isSelected={card.isSelected}
-                isShuffling={isShuffling}
-                position={card.position}
-                onSelect={selectCard}
-                onPositionChange={handleCardPositionChange}
-              />
-            ))}
+          <div className="flex-1 flex items-center justify-center mb-8">
+            <div className="relative w-full max-w-4xl h-64 sm:h-96 border-2 border-dashed border-primary/30 rounded-xl overflow-hidden bg-card/20 backdrop-blur-sm shadow-inner">
+              {cards.map(card => (
+                <TarotCard
+                  key={card.id}
+                  id={card.id}
+                  name={card.name}
+                  isFlipped={card.isFlipped}
+                  isSelected={card.isSelected}
+                  isShuffling={isShuffling}
+                  position={card.position}
+                  onSelect={selectCard}
+                  onPositionChange={handleCardPositionChange}
+                />
+              ))}
+            </div>
           </div>
         )}
 
         {/* Reading Phase */}
         {gamePhase === 'reading' && (
-          <Card className="bg-card/80 backdrop-blur-sm border-primary/30 shadow-xl animate-slide-up">
-            <CardContent className="p-4 sm:p-6">
-              {isLoading ? (
-                <div className="text-center py-8 sm:py-12">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-4 sm:mb-6 animate-spin"></div>
-                  <p className="text-primary text-sm sm:text-base font-medium">
-                    🔮 O Oráculo está interpretando suas cartas...
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-                    As energias cósmicas estão se alinhando
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <div className="prose prose-sm sm:prose-base max-w-none">
-                    <pre className="text-foreground whitespace-pre-wrap text-xs sm:text-sm leading-relaxed font-sans">
-                      {reading}
-                    </pre>
+          <div className="flex-1">
+            <Card className="bg-card/80 backdrop-blur-sm border-primary/30 shadow-xl animate-slide-up">
+              <CardContent className="p-4 sm:p-6">
+                {isLoading ? (
+                  <div className="text-center py-8 sm:py-12">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-4 sm:mb-6 animate-spin"></div>
+                    <p className="text-primary text-sm sm:text-base font-medium">
+                      🔮 O Oráculo está interpretando suas cartas...
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+                      As energias cósmicas estão se alinhando
+                    </p>
                   </div>
-                  <div className="mt-6 sm:mt-8 text-center">
-                    <Button 
-                      onClick={resetGame}
-                      variant="outline"
-                      className="border-primary/50 text-primary hover:bg-primary/10 smooth-scale"
-                    >
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Nova Consulta
-                    </Button>
+                ) : (
+                  <div>
+                    <div className="prose prose-sm sm:prose-base max-w-none">
+                      <pre className="text-foreground whitespace-pre-wrap text-xs sm:text-sm leading-relaxed font-sans">
+                        {reading}
+                      </pre>
+                    </div>
+                    <div className="mt-6 sm:mt-8 text-center">
+                      <Button 
+                        onClick={resetGame}
+                        variant="outline"
+                        className="border-primary/50 text-primary hover:bg-primary/10 smooth-scale"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Nova Consulta
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
+
+      {/* Incredible Footer */}
+      <footer className="w-full mt-auto relative z-10">
+        <div className="mystical-gradient rounded-t-3xl backdrop-blur-sm border-t-2 border-primary/30 shadow-2xl">
+          <div className="relative overflow-hidden">
+            {/* Animated background elements */}
+            <div className="absolute inset-0">
+              {[...Array(15)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute opacity-20 sparkle-animation"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 3}s`
+                  }}
+                >
+                  <Star className="h-3 w-3 text-white" />
+                </div>
+              ))}
+            </div>
+            
+            <div className="relative px-4 py-6 sm:px-6 sm:py-8">
+              <div className="max-w-6xl mx-auto">
+                {/* Main footer content */}
+                <div className="text-center mb-6">
+                  <div className="flex items-center justify-center mb-4 floating-animation">
+                    <div className="bg-white/20 rounded-full p-3 backdrop-blur-sm">
+                      <Heart className="h-6 w-6 text-white sparkle-animation" />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-white text-lg sm:text-xl font-bold mb-2">
+                    ✨ Feito com amor e magia ✨
+                  </h3>
+                  <p className="text-white/80 text-sm sm:text-base max-w-md mx-auto">
+                    Que as estrelas sempre iluminem seu caminho e que a sabedoria ancestral guie seus passos
+                  </p>
+                </div>
+
+                {/* Mystical elements */}
+                <div className="flex justify-center items-center space-x-8 mb-6">
+                  <div className="flex flex-col items-center group cursor-pointer smooth-scale">
+                    <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm mb-2 group-hover:bg-white/30 transition-all duration-300">
+                      <Moon className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-white/80 text-xs">Intuição</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center group cursor-pointer smooth-scale">
+                    <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm mb-2 group-hover:bg-white/30 transition-all duration-300">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-white/80 text-xs">Magia</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center group cursor-pointer smooth-scale">
+                    <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm mb-2 group-hover:bg-white/30 transition-all duration-300">
+                      <Zap className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-white/80 text-xs">Energia</span>
+                  </div>
+                </div>
+
+                {/* Decorative border */}
+                <div className="border-t border-white/20 pt-4">
+                  <div className="flex justify-center items-center space-x-2 text-white/60 text-xs sm:text-sm">
+                    <Star className="h-3 w-3 sparkle-animation" />
+                    <span>O universo conspira a seu favor</span>
+                    <Star className="h-3 w-3 sparkle-animation" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
