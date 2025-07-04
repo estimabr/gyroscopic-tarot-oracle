@@ -341,7 +341,7 @@ O universo sussurra através dessas cartas que sua pergunta "${question}" encont
         {/* Reading Phase */}
         {gamePhase === 'reading' && <div className="flex-1">
             <Card className="bg-card/80 backdrop-blur-sm border-primary/30 shadow-xl animate-slide-up">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 sm:p-6; text-center">
                 {isLoading ? <div className="text-center py-8 sm:py-12">
                     <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-4 sm:mb-6 animate-spin"></div>
                     <p className="text-primary text-sm sm:text-base font-medium">
