@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -70,6 +69,16 @@ const TarotApp = () => {
     y: Math.random() * 300 + 50,
     rotation: Math.random() * 360 - 180
   });
+
+  const handleCardPositionChange = (cardId: number, newPosition: { x: number; y: number; rotation: number }) => {
+    setCards(prevCards =>
+      prevCards.map(card =>
+        card.id === cardId
+          ? { ...card, position: newPosition }
+          : card
+      )
+    );
+  };
 
   const handleQuestionSubmit = () => {
     if (question.trim()) {
@@ -228,6 +237,7 @@ const TarotApp = () => {
                 isShuffling={isShuffling}
                 position={card.position}
                 onSelect={selectCard}
+                onPositionChange={handleCardPositionChange}
               />
             ))}
           </div>
